@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { UserProfileClient } from "./user-profile-client"; // Импортируем наш клиентский компонент
+import { UserProfileClient } from "@/app/components/user-profile-client"; // Импортируем наш клиентский компонент
 
 export async function UserProfile() {
     const supabase = createClient();

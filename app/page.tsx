@@ -2,8 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Button } from "@/app/components/ui/button";
 
+// Это Server Component, поэтому он может быть асинхронным
 export default async function Home() {
+    // Создаем серверный клиент Supabase для безопасного доступа к данным
     const supabase = createClient();
+    // Проверяем, аутентифицирован ли пользователь, делая запрос к серверу Supabase
     const {
         data: { user },
     } = await supabase.auth.getUser();
@@ -14,7 +17,9 @@ export default async function Home() {
                 Welcome to Webhook Listener!
             </h1>
             <div className="flex gap-4 items-center">
+                {/* Условный рендеринг: показываем разный контент в зависимости от статуса пользователя */}
                 {user ? (
+                    // Если пользователь вошел в систему
                     <div className="flex items-center gap-4">
                         <p className="text-sm text-muted-foreground">
                             Logged in as {user.email}
@@ -24,6 +29,7 @@ export default async function Home() {
                         </Button>
                     </div>
                 ) : (
+                    // Если пользователь не вошел в систему
                     <Button asChild>
                         <Link href="/login">Login to Get Started</Link>
                     </Button>
