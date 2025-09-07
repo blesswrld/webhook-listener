@@ -30,7 +30,8 @@ export async function getWebhooks() {
 }
 
 // Server Action для создания нового вебхука
-export async function createWebhook() {
+export async function createWebhook(formData: FormData) {
+    const webhookName = formData.get("name") as string;
     const supabase = createClient();
     const {
         data: { user },
@@ -42,11 +43,11 @@ export async function createWebhook() {
 
     const { error } = await supabase
         .from("webhooks")
-        .insert({ user_id: user.id });
+        .insert({ user_id: user.id, name: webhookName || null }); // Передаем имя
 
     if (error) {
         console.error("Error creating webhook:", error);
-        // Можно добавить редирект с сообщением об ошибке
+        // В будущем можно возвращать ошибку
         return;
     }
 

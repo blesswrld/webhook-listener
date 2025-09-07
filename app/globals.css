@@ -5,33 +5,33 @@
 @layer base {
     :root {
         /* -- Light Theme (Белая тема) -- */
-        --background: 0 0% 100%; /* Чистый белый */
-        --foreground: 0 0% 3.9%; /* Очень тёмный серый (почти чёрный) */
-
+        --background: 0 0% 100%;
+        --foreground: 0 0% 3.9%;
         --card: 0 0% 100%;
         --card-foreground: 0 0% 3.9%;
 
         --popover: 0 0% 100%;
         --popover-foreground: 0 0% 3.9%;
 
-        --primary: 0 0% 9%; /* Темно-серый для основных кнопок */
-        --primary-foreground: 0 0% 98%; /* Светло-серый текст на темном */
+        --primary: 0 0% 9%;
+        --primary-foreground: 0 0% 98%;
 
-        --secondary: 0 0% 96.1%; /* Очень светлый серый */
+        --secondary: 0 0% 96.1%;
         --secondary-foreground: 0 0% 9%;
 
-        --muted: 0 0% 96.1%;
-        --muted-foreground: 0 0% 45%; /* Средне-серый для неактивных элементов */
+        /* ЗАМЕТНЫЙ СВЕТЛО-СЕРЫЙ для светлой темы */
+        --muted: 0 0% 90%;
+        --muted-foreground: 0 0% 45%;
 
-        --accent: 210 100% 50%; /* Акцентный цвет: Яркий Циан (одинаковый для обеих тем) */
-        --accent-foreground: 0 0% 100%; /* Белый текст на акцентном фоне */
+        --accent: 210 100% 50%;
+        --accent-foreground: 0 0% 100%;
 
-        --destructive: 0 84.2% 60.2%; /* Красный для деструктивных действий */
+        --destructive: 0 84.2% 60.2%;
         --destructive-foreground: 0 0% 98%;
 
-        --border: 0 0% 89.1%; /* Светло-серый для границ */
+        --border: 0 0% 89.1%;
         --input: 0 0% 89.1%;
-        --ring: 210 100% 50%; /* Акцентный цвет для кольца фокуса */
+        --ring: 210 100% 50%;
 
         --radius: 0.5rem;
     }
@@ -47,14 +47,14 @@
         --popover: 0 0% 3.9%;
         --popover-foreground: 0 0% 98%;
 
-        --primary: 0 0% 98%; /* Светло-серый для основных кнопок в темной теме */
-        --primary-foreground: 0 0% 9%; /* Темный текст на светлом */
+        --primary: 0 0% 98%;
+        --primary-foreground: 0 0% 9%;
 
-        --secondary: 0 0% 14.5%; /* Темно-серый для вторичных элементов */
+        --secondary: 0 0% 14.5%;
         --secondary-foreground: 0 0% 98%;
 
-        --muted: 0 0% 14.5%;
-        --muted-foreground: 0 0% 62%; /* Средне-серый для неактивных элементов */
+        --muted: 210 40% 98% / 0.1;
+        --muted-foreground: 0 0% 65%;
 
         --accent: 210 100% 50%; /* Акцентный цвет: Яркий Циан */
         --accent-foreground: 0 0% 100%;

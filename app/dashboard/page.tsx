@@ -2,12 +2,14 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
 import { signOut } from "@/app/login/actions";
-import { createWebhook, getWebhooks, getWebhookRequests } from "./actions";
+import { getWebhooks, getWebhookRequests } from "./actions";
 import { CopyButton } from "@/app/components/ui/copy-button";
 import { WebhookDetails } from "./webhook-details";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
+import { CreateWebhookButton } from "./create-webhook-button"; // Импортируем компонент
+import { ThemeToggle } from "@/app/components/theme-toggle"; // <-- Импортируем ThemeToggle
 
 export default async function DashboardPage({
     searchParams,
@@ -55,6 +57,8 @@ export default async function DashboardPage({
                             Sign Out
                         </Button>
                     </form>
+                    {/* ThemeToggle вынесен и является соседним элементом */}
+                    <ThemeToggle />
                 </div>
             </header>
 
@@ -63,11 +67,8 @@ export default async function DashboardPage({
                 <aside className="border-r bg-secondary/40 flex flex-col">
                     <div className="p-4 flex items-center justify-between">
                         <h2 className="text-lg font-semibold">Your Webhooks</h2>
-                        <form>
-                            <Button formAction={createWebhook} size="sm">
-                                Create New
-                            </Button>
-                        </form>
+                        {/* -- Заменяем форму на компонент -- */}
+                        <CreateWebhookButton />
                     </div>
                     <ScrollArea className="flex-1">
                         <nav className="grid gap-2 p-4 pt-0">
@@ -82,8 +83,9 @@ export default async function DashboardPage({
                                     )}
                                 >
                                     <div className="flex w-full items-center justify-between">
-                                        <div className="font-semibold">
-                                            Endpoint
+                                        {/* -- Отображаем имя вебхука -- */}
+                                        <div className="font-semibold truncate pr-2">
+                                            {hook.name || "Untitled Webhook"}
                                         </div>
                                         <CopyButton
                                             textToCopy={`${origin}/api/listen/${hook.id}`}
