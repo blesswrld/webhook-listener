@@ -1,26 +1,80 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@layer base {
+    :root {
+        /* -- Light Theme (Белая тема) -- */
+        --background: 0 0% 100%; /* Чистый белый */
+        --foreground: 0 0% 3.9%; /* Очень тёмный серый (почти чёрный) */
+
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 3.9%;
+
+        --popover: 0 0% 100%;
+        --popover-foreground: 0 0% 3.9%;
+
+        --primary: 0 0% 9%; /* Темно-серый для основных кнопок */
+        --primary-foreground: 0 0% 98%; /* Светло-серый текст на темном */
+
+        --secondary: 0 0% 96.1%; /* Очень светлый серый */
+        --secondary-foreground: 0 0% 9%;
+
+        --muted: 0 0% 96.1%;
+        --muted-foreground: 0 0% 45%; /* Средне-серый для неактивных элементов */
+
+        --accent: 210 100% 50%; /* Акцентный цвет: Яркий Циан (одинаковый для обеих тем) */
+        --accent-foreground: 0 0% 100%; /* Белый текст на акцентном фоне */
+
+        --destructive: 0 84.2% 60.2%; /* Красный для деструктивных действий */
+        --destructive-foreground: 0 0% 98%;
+
+        --border: 0 0% 89.1%; /* Светло-серый для границ */
+        --input: 0 0% 89.1%;
+        --ring: 210 100% 50%; /* Акцентный цвет для кольца фокуса */
+
+        --radius: 0.5rem;
+    }
+
+    .dark {
+        /* -- Dark Theme (Чёрная тема) -- */
+        --background: 0 0% 3.9%; /* Очень тёмный серый (почти чёрный) */
+        --foreground: 0 0% 98%; /* Светло-серый (почти белый) */
+
+        --card: 0 0% 3.9%;
+        --card-foreground: 0 0% 98%;
+
+        --popover: 0 0% 3.9%;
+        --popover-foreground: 0 0% 98%;
+
+        --primary: 0 0% 98%; /* Светло-серый для основных кнопок в темной теме */
+        --primary-foreground: 0 0% 9%; /* Темный текст на светлом */
+
+        --secondary: 0 0% 14.5%; /* Темно-серый для вторичных элементов */
+        --secondary-foreground: 0 0% 98%;
+
+        --muted: 0 0% 14.5%;
+        --muted-foreground: 0 0% 62%; /* Средне-серый для неактивных элементов */
+
+        --accent: 210 100% 50%; /* Акцентный цвет: Яркий Циан */
+        --accent-foreground: 0 0% 100%;
+
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 0 0% 98%;
+
+        --border: 0 0% 14.5%; /* Темно-серый для границ */
+        --input: 0 0% 14.5%;
+        --ring: 210 100% 50%;
+
+        --radius: 0.5rem;
+    }
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
 }
