@@ -47,13 +47,14 @@ export async function signUp(formData: FormData) {
 }
 
 export async function signInWithGithub() {
-    const origin = headers().get("origin"); // Получаем URL нашего приложения
+    const origin = headers().get("origin");
     const supabase = createClient();
 
+    // Здесь мы просто инициируем OAuth-процесс. Основная логика будет в callback.
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "github",
         options: {
-            redirectTo: `${origin}/auth/callback`, // URL, куда вернется пользователь после входа
+            redirectTo: `${origin}/auth/callback`,
         },
     });
 
@@ -61,13 +62,7 @@ export async function signInWithGithub() {
         console.error("GitHub Sign-In Error:", error);
         return redirect("/login?message=Could not authenticate with GitHub");
     }
-
-    if (data.url) {
-        return redirect(data.url); // Перенаправляем пользователя на страницу авторизации GitHub
-    }
-
-    // Этот код обычно не выполняется, так как data.url всегда должен быть
-    return redirect("/login?message=Something went wrong");
+    return redirect(data.url);
 }
 
 export async function signOut() {

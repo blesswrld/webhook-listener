@@ -6,9 +6,10 @@ import { WebhookDetails } from "./webhook-details";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
-import { CreateWebhookButton } from "./create-webhook-button"; // Импортируем компонент
-import { ThemeToggle } from "@/app/components/theme-toggle"; // <-- Импортируем ThemeToggle
+import { CreateWebhookButton } from "./create-webhook-button";
+import { ThemeToggle } from "@/app/components/theme-toggle";
 import { UserProfile } from "@/app/components/user-profile";
+import { WebhookActions } from "./webhook-actions"; // Убедитесь, что импорт есть
 
 export default async function DashboardPage({
     searchParams,
@@ -60,28 +61,37 @@ export default async function DashboardPage({
                     <ScrollArea className="flex-1">
                         <nav className="grid gap-2 p-4 pt-0">
                             {webhooks.map((hook) => (
-                                <Link
+                                // Теперь это div, а не Link
+                                <div
                                     key={hook.id}
-                                    href={`/dashboard?id=${hook.id}`}
                                     className={cn(
-                                        "flex flex-col items-start gap-2 rounded-lg p-3 text-left text-sm transition-all hover:bg-accent/50",
-                                        selectedWebhookId === hook.id &&
-                                            "bg-accent/80 text-accent-foreground"
+                                        "flex flex-col items-start gap-2 rounded-lg p-3 text-left text-sm transition-all border",
+                                        selectedWebhookId === hook.id
+                                            ? "bg-accent/80 text-accent-foreground border-accent"
+                                            : "hover:bg-accent/50 border-transparent"
                                     )}
                                 >
-                                    <div className="flex w-full items-center justify-between">
-                                        {/* -- Отображаем имя вебхука -- */}
+                                    {/* Основная часть карточки теперь является ссылкой */}
+                                    <Link
+                                        href={`/dashboard?id=${hook.id}`}
+                                        className="w-full"
+                                    >
                                         <div className="font-semibold truncate pr-2">
                                             {hook.name || "Untitled Webhook"}
                                         </div>
+                                        <div className="line-clamp-2 text-xs text-muted-foreground w-full break-all">
+                                            {`${origin}/api/listen/${hook.id}`}
+                                        </div>
+                                    </Link>
+
+                                    {/* Кнопки действий теперь СНАРУЖИ ссылки */}
+                                    <div className="flex items-center justify-end w-full mt-2">
                                         <CopyButton
                                             textToCopy={`${origin}/api/listen/${hook.id}`}
                                         />
+                                        <WebhookActions webhook={hook} />
                                     </div>
-                                    <div className="line-clamp-2 text-xs text-muted-foreground w-full break-all">
-                                        {`${origin}/api/listen/${hook.id}`}
-                                    </div>
-                                </Link>
+                                </div>
                             ))}
                         </nav>
                     </ScrollArea>
