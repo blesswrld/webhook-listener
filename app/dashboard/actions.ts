@@ -17,7 +17,7 @@ export async function getWebhooks() {
 
     const { data, error } = await supabase
         .from("webhooks")
-        .select("id, name, created_at")
+        .select("id, name, created_at, custom_path") // <-- Добавляем custom_path
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
@@ -31,28 +31,79 @@ export async function getWebhooks() {
 
 // Server Action для создания нового вебхука
 export async function createWebhook(formData: FormData) {
-    const webhookName = formData.get("name") as string;
+    const name = (formData.get("name") as string).trim();
+    const custom_path = (formData.get("custom_path") as string).trim() || null;
+    const supabase = createClient();
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return redirect("/login");
+
+    const { error } = await supabase
+        .from("webhooks")
+        .insert({ user_id: user.id, name: name || null, custom_path });
+
+    if (error) {
+        console.error("Error creating webhook:", error);
+        if (error.code === "23505") {
+            // Код ошибки PostgreSQL для unique violation
+            return { error: "This custom path is already taken." };
+        }
+        return { error: "Could not create webhook." };
+    }
+
+    revalidatePath("/dashboard");
+    return { success: true };
+}
+
+export async function updateWebhook(formData: FormData) {
+    const name = (formData.get("name") as string).trim();
+    const custom_path = (formData.get("custom_path") as string).trim() || null;
+    const id = formData.get("id") as string;
+
+    if (!id) return { error: "Webhook ID is missing." };
+
     const supabase = createClient();
     const {
         data: { user },
     } = await supabase.auth.getUser();
+    if (!user) return redirect("/login");
 
-    if (!user) {
-        return redirect("/login");
+    // Получаем старый вебхук, чтобы проверить, изменился ли custom_path
+    const { data: oldWebhook, error: fetchError } = await supabase
+        .from("webhooks")
+        .select("custom_path")
+        .eq("id", id)
+        .eq("user_id", user.id) // Убеждаемся, что получаем свой вебхук
+        .single();
+
+    if (fetchError) {
+        return { error: "Could not find webhook to update." };
     }
 
+    // Если custom_path был изменен, удаляем всю историю запросов для этого вебхука
+    if (oldWebhook.custom_path !== custom_path) {
+        await supabase.from("webhook_requests").delete().eq("webhook_id", id);
+    }
+
+    // Обновляем вебхук
     const { error } = await supabase
         .from("webhooks")
-        .insert({ user_id: user.id, name: webhookName || null }); // Передаем имя
+        .update({ name: name || null, custom_path })
+        .eq("id", id)
+        .eq("user_id", user.id);
 
     if (error) {
-        console.error("Error creating webhook:", error);
-        // В будущем можно возвращать ошибку
-        return;
+        console.error("Error updating webhook:", error);
+        if (error.code === "23505") {
+            return { error: "This custom path is already taken." };
+        }
+        return { error: "Could not update webhook." };
     }
 
-    // Перезагружаем данные на странице dashboard, чтобы показать новый вебхук
     revalidatePath("/dashboard");
+    return { success: true };
 }
 
 // Функция для получения запросов для конкретного вебхука
@@ -82,6 +133,7 @@ export async function getWebhookRequests(webhookId: string) {
     return data;
 }
 
+// Функция для обновления запросов для конкретного вебхука
 export async function updateWebhookName(formData: FormData) {
     const name = (formData.get("name") as string).trim();
     const id = formData.get("id") as string;
@@ -112,6 +164,7 @@ export async function updateWebhookName(formData: FormData) {
     return { success: true };
 }
 
+// Функция для удаления запросов для конкретного вебхука
 export async function deleteWebhook(formData: FormData) {
     const id = formData.get("id") as string;
     if (!id) return { error: "Webhook ID is missing." };

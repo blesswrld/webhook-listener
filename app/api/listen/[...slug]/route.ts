@@ -1,32 +1,35 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
-// Создаем "сервисный" клиент Supabase, который может обходить RLS.
+// Создаем "сервисный" клиент Supabase, который может обходить RLS
+// для записи входящих запросов.
 const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Эта функция будет обрабатывать ВСЕ методы (GET, POST, PUT, DELETE, и т.д.)
+// Универсальный обработчик для всех HTTP-методов
 export async function handler(
     req: NextRequest,
-    { params }: { params: { webhookId: string } }
+    { params }: { params: { slug: string[] } }
 ) {
-    const { webhookId } = params;
+    // Собираем полный путь из массива slug. Например, /api/listen/my/custom/path
+    const path = params.slug.join("/");
 
-    // 1. Проверяем, существует ли такой вебхук
+    // Ищем вебхук в базе данных. Запрос пытается найти совпадение
+    // либо в колонке 'id' (для стандартных UUID), либо в 'custom_path'.
     const { data: webhook, error: webhookError } = await supabaseAdmin
         .from("webhooks")
         .select("id")
-        .eq("id", webhookId)
+        .or(`id.eq.${path},custom_path.eq.${path}`) // Ключевая логика поиска
         .single();
 
     if (webhookError || !webhook) {
-        // Если вебхук не найден, возвращаем 404
+        // Если вебхук не найден ни по одному из полей, возвращаем 404.
         return new NextResponse("Webhook not found", { status: 404 });
     }
 
-    // 2. Собираем информацию о запросе
+    // Собираем информацию о входящем запросе
     const method = req.method;
     const headers = Object.fromEntries(req.headers.entries());
     const queryParams = Object.fromEntries(req.nextUrl.searchParams.entries());
@@ -38,11 +41,11 @@ export async function handler(
         body = "[Could not read body]";
     }
 
-    // 3. Сохраняем запрос в базу данных
+    // Сохраняем собранные данные в таблицу webhook_requests
     const { error: insertError } = await supabaseAdmin
         .from("webhook_requests")
         .insert({
-            webhook_id: webhookId,
+            webhook_id: webhook.id, // Важно: всегда используем найденный ID вебхука
             method,
             headers,
             body,
@@ -54,14 +57,13 @@ export async function handler(
         return new NextResponse("Internal Server Error", { status: 500 });
     }
 
-    // 4. Возвращаем успешный ответ
-    // 200 OK — это стандартный ответ для успешно принятых вебхуков
+    // Возвращаем успешный ответ
     return new NextResponse("Webhook request received successfully", {
         status: 200,
     });
 }
 
-// Экспортируем handler для всех HTTP-методов
+// Экспортируем наш универсальный обработчик для всех основных HTTP-методов
 export {
     handler as GET,
     handler as POST,

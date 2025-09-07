@@ -38,14 +38,21 @@ export function CreateWebhookButton() {
                     }}
                 >
                     <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="name" className="text-right">
-                                Name
-                            </Label>
+                        <div className="grid grid-cols-4 items-center gap-2">
+                            <Label htmlFor="name">Name</Label>
                             <Input
                                 id="name"
                                 name="name"
                                 placeholder="e.g., Stripe Events"
+                                className="col-span-3"
+                            />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-2">
+                            <Label htmlFor="custom_path">Custom Path</Label>
+                            <Input
+                                id="custom_path"
+                                name="custom_path"
+                                placeholder="e.g., my-cool-webhook (optional)"
                                 className="col-span-3"
                             />
                         </div>

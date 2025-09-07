@@ -30,13 +30,14 @@ import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { MoreVertical, Edit, Trash2, Loader2 } from "lucide-react";
-import { updateWebhookName, deleteWebhook } from "@/app/dashboard/actions";
+import { updateWebhook, deleteWebhook } from "@/app/dashboard/actions";
 
 // Определяем интерфейс для пропсов, чтобы компонент знал, какие данные о вебхуке он получит
 interface WebhookActionsProps {
     webhook: {
         id: string;
         name: string | null;
+        custom_path: string | null; // <-- Добавили custom_path
     };
 }
 
@@ -54,7 +55,7 @@ export function WebhookActions({ webhook }: WebhookActionsProps) {
         const formData = new FormData(event.currentTarget);
         // Оборачиваем вызов Server Action в startTransition
         startTransition(async () => {
-            const result = await updateWebhookName(formData);
+            const result = await updateWebhook(formData); // <-- Используем `updateWebhook`
             if (result?.error) {
                 alert(result.error); // Показываем ошибку, если она есть
             } else {
@@ -75,7 +76,7 @@ export function WebhookActions({ webhook }: WebhookActionsProps) {
 
     return (
         <>
-            {/* Выпадающее меню с опциями для каждого вебхука */}
+            {/* Выпадающее меню с опциями */}
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -86,7 +87,7 @@ export function WebhookActions({ webhook }: WebhookActionsProps) {
                 <DropdownMenuContent align="end">
                     <DropdownMenuItem onSelect={() => setEditOpen(true)}>
                         <Edit className="mr-2 h-4 w-4" />
-                        <span>Edit Name</span>
+                        <span>Edit</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -99,36 +100,49 @@ export function WebhookActions({ webhook }: WebhookActionsProps) {
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Диалоговое окно для редактирования имени */}
+            {/* Диалоговое окно для редактирования */}
             <Dialog open={isEditOpen} onOpenChange={setEditOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Edit Webhook Name</DialogTitle>
+                        <DialogTitle>Edit Webhook</DialogTitle>
                         <DialogDescription>
-                            Give your webhook a name to easily identify it.
+                            Update the name and custom path for your webhook.
                         </DialogDescription>
                     </DialogHeader>
-                    {/* Форма вызывает наш клиентский обработчик onSubmit */}
-                    <form
-                        onSubmit={handleUpdateSubmit}
-                        className="grid gap-4 py-4"
-                    >
-                        {/* Скрытое поле для передачи ID вебхука в Server Action */}
+                    <form onSubmit={handleUpdateSubmit} className="grid gap-4">
                         <input type="hidden" name="id" value={webhook.id} />
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="name" className="text-right">
-                                Name
-                            </Label>
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="name">Name</Label>
                             <Input
                                 id="name"
                                 name="name"
                                 defaultValue={webhook.name ?? ""}
-                                className="col-span-3"
+                                placeholder="Webhook name"
                             />
                         </div>
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="custom_path">Custom Path</Label>
+                            <Input
+                                id="custom_path"
+                                name="custom_path"
+                                defaultValue={webhook.custom_path ?? ""}
+                                placeholder="your-path"
+                            />
+                        </div>
+
+                        <p className="text-xs text-muted-foreground text-center">
+                            ⚠️ Changing the custom path will delete all request
+                            history.
+                        </p>
+
                         <DialogFooter>
-                            {/* Кнопка отключается, пока форма отправляется (isPending === true) */}
-                            <Button type="submit" disabled={isPending}>
+                            <Button
+                                type="submit"
+                                disabled={isPending}
+                                className="w-full"
+                            >
                                 {isPending ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
@@ -148,9 +162,8 @@ export function WebhookActions({ webhook }: WebhookActionsProps) {
                             Are you absolutely sure?
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                            This action cannot be undone. This will permanently
-                            delete your webhook and all of its associated
-                            requests.
+                            This will permanently delete your webhook and all of
+                            its requests.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -161,7 +174,11 @@ export function WebhookActions({ webhook }: WebhookActionsProps) {
                             <input type="hidden" name="id" value={webhook.id} />
                             {/* `asChild` позволяет нам использовать нашу кастомную Button внутри AlertDialogAction */}
                             <AlertDialogAction asChild>
-                                <Button type="submit" disabled={isPending}>
+                                <Button
+                                    variant="destructive"
+                                    type="submit"
+                                    disabled={isPending}
+                                >
                                     {isPending ? (
                                         <Loader2 className="h-4 w-4 animate-spin" />
                                     ) : (
