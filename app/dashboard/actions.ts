@@ -53,3 +53,30 @@ export async function createWebhook() {
     // Перезагружаем данные на странице dashboard, чтобы показать новый вебхук
     revalidatePath("/dashboard");
 }
+
+// Функция для получения запросов для конкретного вебхука
+export async function getWebhookRequests(webhookId: string) {
+    const supabase = createClient();
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        return redirect("/login");
+    }
+
+    // RLS политика гарантирует, что мы получим запросы только для вебхука,
+    // который принадлежит текущему пользователю.
+    const { data, error } = await supabase
+        .from("webhook_requests")
+        .select("*")
+        .eq("webhook_id", webhookId)
+        .order("received_at", { ascending: false }); // Новые вверху
+
+    if (error) {
+        console.error("Error fetching webhook requests:", error);
+        return [];
+    }
+
+    return data;
+}
