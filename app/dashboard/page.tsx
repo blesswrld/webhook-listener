@@ -1,7 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { Button } from "@/app/components/ui/button";
-import { signOut } from "@/app/login/actions";
 import { getWebhooks, getWebhookRequests } from "./actions";
 import { CopyButton } from "@/app/components/ui/copy-button";
 import { WebhookDetails } from "./webhook-details";
@@ -10,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
 import { CreateWebhookButton } from "./create-webhook-button"; // Импортируем компонент
 import { ThemeToggle } from "@/app/components/theme-toggle"; // <-- Импортируем ThemeToggle
+import { UserProfile } from "@/app/components/user-profile";
 
 export default async function DashboardPage({
     searchParams,
@@ -44,19 +43,7 @@ export default async function DashboardPage({
             <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background px-4 md:px-6 shrink-0">
                 <h1 className="text-lg font-semibold">Dashboard</h1>
                 <div className="flex items-center gap-4">
-                    <p className="text-sm text-muted-foreground hidden md:block">
-                        {user.email}
-                    </p>
-                    <form>
-                        {/* Кнопка выхода */}
-                        <Button
-                            formAction={signOut}
-                            variant="outline"
-                            size="sm"
-                        >
-                            Sign Out
-                        </Button>
-                    </form>
+                    <UserProfile />
                     {/* ThemeToggle вынесен и является соседним элементом */}
                     <ThemeToggle />
                 </div>
