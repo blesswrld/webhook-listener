@@ -12,15 +12,15 @@ export default async function Home() {
     } = await supabase.auth.getUser();
 
     return (
-        <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-background text-foreground">
-            <h1 className="text-4xl font-bold mb-8">
+        <main className="flex min-h-screen flex-col items-center justify-center p-6 text-center md:p-24 bg-background text-foreground">
+            <h1 className="text-3xl font-bold md:text-4xl lg:text-5xl mb-8">
                 Welcome to Webhook Listener!
             </h1>
             <div className="flex gap-4 items-center">
                 {/* Условный рендеринг: показываем разный контент в зависимости от статуса пользователя */}
                 {user ? (
                     // Если пользователь вошел в систему
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col md:flex-row items-center gap-4">
                         <p className="text-sm text-muted-foreground">
                             Logged in as {user.email}
                         </p>
