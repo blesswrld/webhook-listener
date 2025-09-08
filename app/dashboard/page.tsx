@@ -34,9 +34,7 @@ export default async function DashboardPage({
             : Promise.resolve([]),
     ]);
 
-    const origin = process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000";
+    const origin = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
     return (
         <div className="flex h-screen w-full flex-col">
