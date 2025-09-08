@@ -9,7 +9,7 @@ const supabaseAdmin = createClient(
 );
 
 // Универсальный обработчик для всех HTTP-методов
-export async function handler(
+async function handler(
     req: NextRequest,
     { params }: { params: { slug: string[] } }
 ) {
