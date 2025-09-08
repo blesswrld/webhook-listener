@@ -93,7 +93,7 @@ export function WebhookDetails({
                         <AccordionItem key={req.id} value={req.id}>
                             <AccordionTrigger>
                                 <div className="flex items-center gap-4">
-                                    <span className="font-mono text-sm px-2 py-1 bg-accent/20 text-accent-foreground rounded-md">
+                                    <span className="font-mono text-sm px-2 py-1 rounded-md bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-400">
                                         {req.method}
                                     </span>
                                     <span className="text-sm font-mono text-muted-foreground">

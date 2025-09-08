@@ -4,6 +4,46 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+/**
+ * Хелпер для очистки кастомного пути.
+ * Извлекает последний сегмент из URL или slugify'ит обычную строку.
+ * @param path - Ввод пользователя.
+ * @returns Очищенный и безопасный для URL путь или null, если ввод пустой.
+ */
+function sanitizeCustomPath(path: string | null): string | null {
+    if (!path || path.trim() === "") {
+        return null;
+    }
+
+    let processedPath = path.trim();
+
+    // Если пользователь вставил полный URL, извлекаем только путь
+    if (
+        processedPath.startsWith("http:") ||
+        processedPath.startsWith("https:")
+    ) {
+        try {
+            const url = new URL(processedPath);
+            // Берем последний непустой сегмент пути
+            const pathSegments = url.pathname.split("/").filter(Boolean);
+            processedPath = pathSegments[pathSegments.length - 1] || "";
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (error) {
+            // Если URL невалидный, пробуем обработать как обычную строку
+        }
+    }
+
+    // Преобразуем в "slug" формат: нижний регистр, замена пробелов на дефисы,
+    // удаление недопустимых символов.
+    return processedPath
+        .toLowerCase()
+        .replace(/\s+/g, "-") // заменяем пробелы на -
+        .replace(/[^\w\-]+/g, "") // удаляем все не-буквы/цифры и не-дефисы
+        .replace(/\-\-+/g, "-") // заменяем несколько -- на один -
+        .replace(/^-+/, "") // убираем - в начале
+        .replace(/-+$/, ""); // убираем - в конце
+}
+
 // Функция для получения всех вебхуков текущего пользователя
 export async function getWebhooks() {
     const supabase = createClient();
@@ -17,7 +57,7 @@ export async function getWebhooks() {
 
     const { data, error } = await supabase
         .from("webhooks")
-        .select("id, name, created_at, custom_path") // <-- Добавляем custom_path
+        .select("id, name, created_at, custom_path")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
@@ -32,7 +72,9 @@ export async function getWebhooks() {
 // Server Action для создания нового вебхука
 export async function createWebhook(formData: FormData) {
     const name = (formData.get("name") as string).trim();
-    const custom_path = (formData.get("custom_path") as string).trim() || null;
+    const custom_path = sanitizeCustomPath(
+        formData.get("custom_path") as string
+    );
     const supabase = createClient();
 
     const {
@@ -57,9 +99,12 @@ export async function createWebhook(formData: FormData) {
     return { success: true };
 }
 
+// Server Action для обновления вебхука (имя и кастомный путь)
 export async function updateWebhook(formData: FormData) {
     const name = (formData.get("name") as string).trim();
-    const custom_path = (formData.get("custom_path") as string).trim() || null;
+    const custom_path = sanitizeCustomPath(
+        formData.get("custom_path") as string
+    );
     const id = formData.get("id") as string;
 
     if (!id) return { error: "Webhook ID is missing." };
@@ -84,10 +129,18 @@ export async function updateWebhook(formData: FormData) {
 
     // Если custom_path был изменен, удаляем всю историю запросов для этого вебхука
     if (oldWebhook.custom_path !== custom_path) {
-        await supabase.from("webhook_requests").delete().eq("webhook_id", id);
+        console.log(
+            `Custom path changed from "${oldWebhook.custom_path}" to "${custom_path}". Deleting requests...`
+        );
+        const { error: deleteError } = await supabase
+            .from("webhook_requests")
+            .delete()
+            .eq("webhook_id", id);
+        if (deleteError) {
+            console.error("Failed to delete old requests:", deleteError);
+        }
     }
 
-    // Обновляем вебхук
     const { error } = await supabase
         .from("webhooks")
         .update({ name: name || null, custom_path })
@@ -131,37 +184,6 @@ export async function getWebhookRequests(webhookId: string) {
     }
 
     return data;
-}
-
-// Функция для обновления запросов для конкретного вебхука
-export async function updateWebhookName(formData: FormData) {
-    const name = (formData.get("name") as string).trim();
-    const id = formData.get("id") as string;
-
-    if (!id) return { error: "Webhook ID is missing." };
-    if (name.length > 0 && name.length < 2) {
-        return { error: "Name must be at least 2 characters long." };
-    }
-
-    const supabase = createClient();
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return redirect("/login");
-
-    const { error } = await supabase
-        .from("webhooks")
-        .update({ name: name || null }) // Если имя пустое, устанавливаем NULL
-        .eq("id", id)
-        .eq("user_id", user.id); // Дополнительная проверка на сервере
-
-    if (error) {
-        console.error("Error updating webhook name:", error);
-        return { error: "Could not update webhook name." };
-    }
-
-    revalidatePath("/dashboard");
-    return { success: true };
 }
 
 // Функция для удаления запросов для конкретного вебхука

@@ -61,14 +61,22 @@ export default async function DashboardPage({
                     </div>
                     <ScrollArea className="flex-1">
                         <nav className="grid gap-2 p-4 pt-2">
-                            {webhooks.map((hook) => (
-                                <WebhookCard
-                                    key={hook.id}
-                                    hook={hook}
-                                    isSelected={selectedWebhookId === hook.id}
-                                    origin={origin}
-                                />
-                            ))}
+                            {webhooks.map((hook) => {
+                                // -- Вычисляем URL здесь --
+                                const displayPath = hook.custom_path || hook.id;
+                                const webhookUrl = `${origin}/api/listen/${displayPath}`;
+
+                                return (
+                                    <WebhookCard
+                                        key={hook.id}
+                                        hook={hook}
+                                        isSelected={
+                                            selectedWebhookId === hook.id
+                                        }
+                                        webhookUrl={webhookUrl} // <-- Передаем готовый URL
+                                    />
+                                );
+                            })}
                         </nav>
                     </ScrollArea>
                 </aside>
@@ -104,14 +112,21 @@ export default async function DashboardPage({
                                     <CreateWebhookButton />
                                 </div>
                                 <nav className="grid gap-2 p-4 pt-2">
-                                    {webhooks.map((hook) => (
-                                        <WebhookCard
-                                            key={hook.id}
-                                            hook={hook}
-                                            isSelected={false}
-                                            origin={origin}
-                                        />
-                                    ))}
+                                    {webhooks.map((hook) => {
+                                        // --  И для мобильной верстки тоже --
+                                        const displayPath =
+                                            hook.custom_path || hook.id;
+                                        const webhookUrl = `${origin}/api/listen/${displayPath}`;
+
+                                        return (
+                                            <WebhookCard
+                                                key={hook.id}
+                                                hook={hook}
+                                                isSelected={false}
+                                                webhookUrl={webhookUrl}
+                                            />
+                                        );
+                                    })}
                                 </nav>
                             </div>
                             {/* Заглушка для десктопов */}

@@ -31,14 +31,15 @@ import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { MoreVertical, Edit, Trash2, Loader2 } from "lucide-react";
 import { updateWebhook, deleteWebhook } from "@/app/dashboard/actions";
+import { type getWebhooks } from "@/app/dashboard/actions";
 
-// Определяем интерфейс для пропсов, чтобы компонент знал, какие данные о вебхуке он получит
+// Определяем тип один раз, чтобы его переиспользовать
+type Webhook = Awaited<ReturnType<typeof getWebhooks>>[0];
+
+// Мы просто говорим,
+// что компонент ожидает получить один объект типа Webhook.
 interface WebhookActionsProps {
-    webhook: {
-        id: string;
-        name: string | null;
-        custom_path: string | null; // <-- Добавили custom_path
-    };
+    webhook: Webhook;
 }
 
 export function WebhookActions({ webhook }: WebhookActionsProps) {
@@ -55,16 +56,16 @@ export function WebhookActions({ webhook }: WebhookActionsProps) {
         const formData = new FormData(event.currentTarget);
         // Оборачиваем вызов Server Action в startTransition
         startTransition(async () => {
-            const result = await updateWebhook(formData); // <-- Используем `updateWebhook`
+            const result = await updateWebhook(formData);
             if (result?.error) {
-                alert(result.error); // Показываем ошибку, если она есть
+                alert(result.error);
             } else {
-                setEditOpen(false); // Закрываем диалоговое окно при успехе
+                setEditOpen(false);
             }
         });
     };
 
-    // Клиентская функция-обработчик для формы удаления
+    // Обработчик для формы удаления
     const handleDeleteSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
