@@ -32,6 +32,7 @@ import { Label } from "@/app/components/ui/label";
 import { MoreVertical, Edit, Trash2, Loader2 } from "lucide-react";
 import { updateWebhook, deleteWebhook } from "@/app/dashboard/actions";
 import { type getWebhooks } from "@/app/dashboard/actions";
+import { toast } from "sonner";
 
 // Определяем тип один раз, чтобы его переиспользовать
 type Webhook = Awaited<ReturnType<typeof getWebhooks>>[0];
@@ -58,9 +59,14 @@ export function WebhookActions({ webhook }: WebhookActionsProps) {
         startTransition(async () => {
             const result = await updateWebhook(formData);
             if (result?.error) {
-                alert(result.error);
+                toast.error("Error updating webhook", {
+                    description: result.error,
+                });
             } else {
                 setEditOpen(false);
+                toast.success("Webhook updated!", {
+                    description: "Your changes have been saved successfully.",
+                });
             }
         });
     };

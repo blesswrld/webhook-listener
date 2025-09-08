@@ -27,6 +27,7 @@ import {
 } from "@/app/components/ui/dialog";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
+import { toast } from "sonner";
 
 // Определяем тип для данных пользователя, которые мы будем передавать
 type UserProfileData = {
@@ -82,9 +83,18 @@ export function UserProfileClient({
                 if (isAvatarForm) {
                     setEditDialogOpen(false); // Закрываем диалог после загрузки аватара
                 }
+
+                toast.success("Profile updated!", {
+                    description: `Your new ${
+                        isAvatarForm ? "avatar" : "username"
+                    } has been saved.`,
+                });
+
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (error: any) {
-                alert(error.message);
+                toast.error("Profile update failed", {
+                    description: error.message,
+                });
             }
         });
     };
