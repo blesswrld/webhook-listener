@@ -63,11 +63,13 @@ export async function handler(
     });
 }
 
-// Экспортируем наш универсальный обработчик для всех основных HTTP-методов
+// Экспортируем ту же самую функцию handler под именами всех нужных HTTP-методов.
 export {
     handler as GET,
     handler as POST,
     handler as PUT,
-    handler as DELETE,
     handler as PATCH,
+    handler as DELETE,
+    handler as HEAD,
+    handler as OPTIONS,
 };
