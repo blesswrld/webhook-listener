@@ -14,7 +14,7 @@ export async function handler(
     { params }: { params: { slug: string[] } }
 ) {
     // Собираем полный путь из массива slug. Например, /api/listen/my/custom/path
-    const path = params.slug.join("/");
+    const path = params.slug[0];
 
     // Ищем вебхук в базе данных. Запрос пытается найти совпадение
     // либо в колонке 'id' (для стандартных UUID), либо в 'custom_path'.
