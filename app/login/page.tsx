@@ -69,6 +69,7 @@ export default function LoginPage({
                                     id="password"
                                     type="password"
                                     name="password"
+                                    placeholder="******"
                                     required
                                 />
                             </div>
