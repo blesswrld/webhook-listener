@@ -11,6 +11,11 @@ export default async function Home() {
         data: { user },
     } = await supabase.auth.getUser();
 
+    // Определяем, какое имя отображать.
+    // Приоритет отдаем никнейму из метаданных (который приходит, например, от GitHub),
+    // а если его нет (например, при регистрации по email), используем email.
+    const displayName = user?.user_metadata?.user_name || user?.email;
+
     return (
         <main className="flex min-h-screen flex-col items-center justify-center p-6 text-center md:p-24 bg-background text-foreground">
             <h1 className="text-3xl font-bold md:text-4xl lg:text-5xl mb-8">
@@ -22,7 +27,7 @@ export default async function Home() {
                     // Если пользователь вошел в систему
                     <div className="flex flex-col md:flex-row items-center gap-4">
                         <p className="text-sm text-muted-foreground">
-                            Logged in as {user.email}
+                            Welcome back, {displayName}!
                         </p>
                         <Button asChild>
                             <Link href="/dashboard">Go to Dashboard</Link>
